@@ -1,299 +1,352 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Midjourney Prompt Builder</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background: #f0f2f5;
-            line-height: 1.6;
-        }
-        .prompt-display {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            white-space: pre-wrap;
-            font-family: monospace;
-            font-size: 16px;
-            line-height: 1.8;
-            border: 2px solid #e1e4e8;
-        }
-        .category {
-            background: white;
-            padding: 25px;
-            margin-bottom: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        .category-title {
-            font-weight: bold;
-            margin-bottom: 15px;
-            font-size: 18px;
-            color: #1a365d;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e1e4e8;
-        }
-        .category-title.required::after {
-            content: " *";
-            color: #e53e3e;
-        }
-        .options {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            padding: 5px 0;
-        }
-        .option-btn {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            padding: 12px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        .option-btn:hover {
-            background: #edf2f7;
-            border-color: #cbd5e0;
-            transform: translateY(-1px);
-        }
-        .option-btn.selected {
-            background: #3182ce;
-            color: white;
-            border-color: #2c5282;
-            box-shadow: 0 2px 4px rgba(49, 130, 206, 0.3);
-        }
-        .copy-btn {
-            background: #38a169;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-bottom: 25px;
-            font-size: 16px;
-            transition: all 0.2s;
-        }
-        .copy-btn:hover {
-            background: #2f855a;
-            transform: translateY(-1px);
-        }
-        .error-message {
-            color: #e53e3e;
-            margin-bottom: 15px;
-            font-weight: 500;
-            padding: 10px;
-            background: #fff5f5;
-            border-radius: 8px;
-            border: 1px solid #feb2b2;
-            display: none;
-        }
-        .error-message.visible {
-            display: block;
-        }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #f0f2f5;
+        line-height: 1.6;
+      }
+      .prompt-display {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        white-space: pre-wrap;
+        font-family: monospace;
+        font-size: 16px;
+        line-height: 1.8;
+        border: 2px solid #e1e4e8;
+      }
+      .category {
+        background: white;
+        padding: 25px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+      .category-title {
+        font-weight: bold;
+        margin-bottom: 15px;
+        font-size: 18px;
+        color: #1a365d;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e1e4e8;
+      }
+      .category-title.required::after {
+        content: " *";
+        color: #e53e3e;
+      }
+      .options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 5px 0;
+      }
+      .option-btn {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 12px 20px;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+      .option-btn:hover {
+        background: #edf2f7;
+        border-color: #cbd5e0;
+        transform: translateY(-1px);
+      }
+      .option-btn.selected {
+        background: #3182ce;
+        color: white;
+        border-color: #2c5282;
+        box-shadow: 0 2px 4px rgba(49, 130, 206, 0.3);
+      }
+      .copy-btn {
+        background: #38a169;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin-bottom: 25px;
+        font-size: 16px;
+        transition: all 0.2s;
+      }
+      .copy-btn:hover {
+        background: #2f855a;
+        transform: translateY(-1px);
+      }
+      .error-message {
+        color: #e53e3e;
+        margin-bottom: 15px;
+        font-weight: 500;
+        padding: 10px;
+        background: #fff5f5;
+        border-radius: 8px;
+        border: 1px solid #feb2b2;
+        display: none;
+      }
+      .error-message.visible {
+        display: block;
+      }
 
-        /* カテゴリー別の色分け */
-        .category[data-category="ブース"] {
-            background: #ebf8ff;
-        }
-        .category[data-category="一番目につアイテム"],
-        .category[data-category="展示関係"],
-        .category[data-category="ミーティング"] {
-            background: #f0fff4;
-        }
+      /* カテゴリー別の色分け */
+      .category[data-category="ブース"] {
+        background: #ebf8ff;
+      }
+      .category[data-category="一番目につアイテム"],
+      .category[data-category="展示関係"],
+      .category[data-category="ミーティング"] {
+        background: #f0fff4;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div id="error-message" class="error-message"></div>
     <div id="prompt-display" class="prompt-display"></div>
     <button id="copy-btn" class="copy-btn">プロンプトをコピー</button>
     <div id="categories"></div>
 
     <script>
-        const categoryOrder = [
-            'どんな',
-            '(どんな)',
-            'ブース',
-            '形状',
-            'サイズ',
-            '一番目につアイテム',
-            '展示関係',
-            'ミーティング',
-            'デザイン設定',
-            '背景',
-            'レンダリング',
-            '照明',
-            '除外',
-            '比率',
-            'バージョン'
-        ];
+      const categoryOrder = [
+        "どんな",
+        "(どんな)",
+        "ブース",
+        "形状",
+        "サイズ",
+        "高さ", // 追加
+        "一番目につアイテム",
+        "展示関係",
+        "ミーティング",
+        "デザイン設定",
+        "背景",
+        "レンダリング",
+        "照明",
+        "除外",
+        "比率",
+        "バージョン",
+      ];
 
-        const categories = {
-            どんな: ['spacious', 'openly', 'welcome', 'monument', 'architectur'],
-            '(どんな)': ['huge', 'grand', 'compact', 'small'],
-            ブース: ['exhibition stand', 'exhibition booth', 'tradeshow booth'],
-            形状: ['located in-line (1 side open)', 'located at intersection of two sides (2 sides open)', 'located in a peninsula position (3 sides open)', 'located in a island position(4 sides open)'],
-            サイズ: ['12x6 metres', '12x12 metres', '6x6 metres', '6x3 metres'],
-            一番目につアイテム: ['an eye-catching demonstration stage with large display', 'a symbolical high sign tower with logo', 'a reception counter'],
-            展示関係: ['products exhibit space with counters, displays and technical content panels', 'freestanding and regularly arranged walls with mounted posters and displays'],
-            ミーティング: ['compact meeting space with sets of chairs and table','2 meeting room'],
-            デザイン設定: ['Minimalist design with clean lines and pure white surfaces, accented by warm wood elements and subtle silver details. The space maintains a serene atmosphere with balanced proportions and thoughtful negative space, reminiscent of contemporary Japanese aesthetics', 'Zen-inspired design, featuring natural harmony, soft organic forms, and small pot plants in neutral earthy tones', 'Industrial modern design, showcasing raw textures, bold structural lines, and polished contrasts in a muted metallic palette', 'Futuristic transparent design, with glass-like transparency, illuminated accents, and seamless flow in a soft glowing palette', 'Scandinavian minimalist design, combining warm simplicity, clean organic lines, and light monochrome tones with soft ambient lighting'],
-            背景: [
-                "An expansive exhibition hall with high ceilings, industrial lighting, and polished concrete floors creates the backdrop. The massive space features exposed steel beams overhead and large windows that let in natural light",
-                "An elegant hotel ballroom featuring crystal chandeliers, ornate carpeting, and classic wall sconces. The sophisticated space has high coffered ceilings and rich drapery along the walls",
-                "A stark, pure black void, creating a dramatic and minimalist setting with absolute darkness that eliminates all visual distractions",
-                "A bright, open event space in a shopping mall's central court. The area features high glass ceilings with natural lighting, surrounded by two levels of retail shops. Modern tile flooring and sleek metal railings define the space, while ambient mall activity and store displays create a lively retail atmosphere"
-            ],
-            レンダリング: ['Photorealist rendering', '--monotone sketch--'],
-            照明: ['Soft ambient lighting, accent lighting for highlights, dynamic color-changing LEDs, directional spotlights, and indirect diffused illumination', 'Gentle ambient washes, bold accent highlights, crisp directional beams, soft diffused glows, and vibrant color-shifting LEDs', 'Subtle perimeter lighting, sharp focused spotlights, natural daylight integration, warm gradient effects, and soft backlit panels', 'Evenly distributed general lighting, textured wall illumination, adjustable spotlight accents, cool-toned LED highlights, and soft edge-lit', 'Layered lighting effects, precision task lighting, immersive backlit displays, smooth gradient illumination, and energy-efficient LED'],
-            除外: ['--no people', '--no other stands', '--no plants, flowers'],
-            比率: ['--ar 16:9', '--ar 4:3', '--ar 1:1'],
-            バージョン: ['--v 6.0']
+      const categories = {
+        どんな: ["spacious", "openly", "welcome", "monument", "architectur"],
+        "(どんな)": ["huge", "grand", "compact", "small"],
+        ブース: ["exhibition stand", "exhibition booth", "tradeshow booth"],
+        形状: [
+          "located in-line (1 side open)",
+          "located at intersection of two sides (2 sides open)",
+          "located in a peninsula position (3 sides open)",
+          "located in a island position(4 sides open)",
+        ],
+        サイズ: ["12x6 metres", "12x12 metres", "6x6 metres", "6x3 metres"],
+        一番目につアイテム: [
+          "an eye-catching demonstration stage with large display",
+          "a symbolical high sign tower with logo",
+          "a reception counter",
+        ],
+        高さ: ["2.7 metre", "3.6 metre", "4 metre", "4.5 metre"],
+        展示関係: [
+          "products exhibit space with counters, displays and technical content panels",
+          "freestanding and regularly arranged walls with mounted posters and displays",
+        ],
+        ミーティング: [
+          "compact meeting space with sets of chairs and table",
+          "2 meeting room",
+        ],
+        デザイン設定: [
+          "Minimalist design with clean lines and pure white surfaces, accented by warm wood elements and subtle silver details. The space maintains a serene atmosphere with balanced proportions and thoughtful negative space, reminiscent of contemporary Japanese aesthetics",
+          "Zen-inspired design, featuring natural harmony, soft organic forms, and small pot plants in neutral earthy tones",
+          "Industrial modern design, showcasing raw textures, bold structural lines, and polished contrasts in a muted metallic palette",
+          "Futuristic transparent design, with glass-like transparency, illuminated accents, and seamless flow in a soft glowing palette",
+          "Scandinavian minimalist design, combining warm simplicity, clean organic lines, and light monochrome tones with soft ambient lighting",
+        ],
+        背景: [
+          "An expansive exhibition hall with high ceilings, industrial lighting, and polished concrete floors creates the backdrop. The massive space features exposed steel beams overhead and large windows that let in natural light",
+          "An elegant hotel ballroom featuring crystal chandeliers, ornate carpeting, and classic wall sconces. The sophisticated space has high coffered ceilings and rich drapery along the walls",
+          "A stark, pure black void, creating a dramatic and minimalist setting with absolute darkness that eliminates all visual distractions",
+          "A bright, open event space in a shopping mall's central court. The area features high glass ceilings with natural lighting, surrounded by two levels of retail shops. Modern tile flooring and sleek metal railings define the space, while ambient mall activity and store displays create a lively retail atmosphere",
+        ],
+        レンダリング: ["Photorealist rendering", "--monotone sketch--"],
+        照明: [
+          "Soft ambient lighting, accent lighting for highlights, dynamic color-changing LEDs, directional spotlights, and indirect diffused illumination",
+          "Gentle ambient washes, bold accent highlights, crisp directional beams, soft diffused glows, and vibrant color-shifting LEDs",
+          "Subtle perimeter lighting, sharp focused spotlights, natural daylight integration, warm gradient effects, and soft backlit panels",
+          "Evenly distributed general lighting, textured wall illumination, adjustable spotlight accents, cool-toned LED highlights, and soft edge-lit",
+          "Layered lighting effects, precision task lighting, immersive backlit displays, smooth gradient illumination, and energy-efficient LED",
+        ],
+        除外: ["--no people", "--no other stands", "--no plants flowers"], // ここを修正
+        比率: ["--ar 16:9", "--ar 4:3", "--ar 1:1"],
+        バージョン: ["--v 6.0"],
+      };
+
+      const selectedOptions = {};
+
+      // バージョンを自動選択
+      selectedOptions["バージョン"] = "--v 6.0";
+
+      function shouldShowIncludes() {
+        return (
+          selectedOptions["一番目につアイテム"] ||
+          selectedOptions["展示関係"] ||
+          selectedOptions["ミーティング"]
+        );
+      }
+
+      function validateSelections() {
+        const errorMessage = document.getElementById("error-message");
+        if (!selectedOptions["ブース"]) {
+          errorMessage.textContent = "ブースの選択は必須です";
+          errorMessage.classList.add("visible");
+          return false;
+        }
+        errorMessage.classList.remove("visible");
+        return true;
+      }
+
+      function updatePrompt() {
+        const selections = [];
+        let hasIncludeTargets = false;
+        const specialOptions = {
+          // 特別な処理が必要なオプション
+          exclude: null,
+          ratio: null,
         };
 
-        const selectedOptions = {};
-        
-        // バージョンを自動選択
-        selectedOptions['バージョン'] = '--v 6.0';
+        categoryOrder.forEach((category) => {
+          if (category === "バージョン") return;
 
-        function shouldShowIncludes() {
-            return selectedOptions['一番目につアイテム'] || 
-                   selectedOptions['展示関係'] || 
-                   selectedOptions['ミーティング'];
-        }
+          const selectedOption = selectedOptions[category];
+          if (!selectedOption) return;
 
-        function validateSelections() {
-            const errorMessage = document.getElementById('error-message');
-            if (!selectedOptions['ブース']) {
-                errorMessage.textContent = 'ブースの選択は必須です';
-                errorMessage.classList.add('visible');
-                return false;
+          // 除外と比率は後で追加するため保存
+          if (category === "除外") {
+            specialOptions.exclude = selectedOption;
+            return;
+          }
+          if (category === "比率") {
+            specialOptions.ratio = selectedOption;
+            return;
+          }
+
+          if (category === "サイズ" || selections.length === 0) {
+            selections.push(selectedOption);
+          } else if (
+            ["一番目につアイテム", "展示関係", "ミーティング"].includes(
+              category
+            )
+          ) {
+            if (!hasIncludeTargets) {
+              hasIncludeTargets = true;
+              selections.push("includes " + selectedOption);
+            } else {
+              selections.push(selectedOption);
             }
-            errorMessage.classList.remove('visible');
-            return true;
+          } else if (category === "背景") {
+            selections.push("Background: " + selectedOption);
+          } else {
+            selections.push(selectedOption);
+          }
+        });
+
+        // 通常のオプションを結合
+        let promptText = selections.join(", ");
+
+        // 除外オプションがある場合は追加（カンマなし）
+        if (specialOptions.exclude) {
+          promptText += (promptText ? " " : "") + specialOptions.exclude;
         }
 
-        function updatePrompt() {
-            const selections = [];
-            let hasIncludeTargets = false;
-            
-            categoryOrder.forEach(category => {
-                if (category === 'バージョン') return;
-                
-                const selectedOption = selectedOptions[category];
-                if (!selectedOption) return;
-
-                // サイズまでの項目を追加
-                if (category === 'サイズ' || selections.length === 0) {
-                    selections.push(selectedOption);
-                }
-                // includesが必要な項目をチェック
-                else if (['一番目につアイテム', '展示関係', 'ミーティング'].includes(category)) {
-                    if (!hasIncludeTargets) {
-                        hasIncludeTargets = true;
-                        selections.push('includes ' + selectedOption);
-                    } else {
-                        selections.push(selectedOption);
-                    }
-                }
-                // 背景の処理
-                else if (category === '背景') {
-                    if (selections.length > 0) {
-                        selections.push('Background: ' + selectedOption);
-                    } else {
-                        selections.push('Background: ' + selectedOption);
-                    }
-                }
-                // それ以外の項目を追加
-                else {
-                    selections.push(selectedOption);
-                }
-            });
-
-            // プロンプトテキストを生成
-            let promptText = selections.join(', ');
-            
-            // バージョンを追加
-            promptText += ' --v 6.0';
-
-            document.getElementById('prompt-display').textContent = promptText;
-            validateSelections();
+        // 比率オプションがある場合は追加（カンマなし）
+        if (specialOptions.ratio) {
+          promptText += (promptText ? " " : "") + specialOptions.ratio;
         }
 
-        function createCategories() {
-            const container = document.getElementById('categories');
-            
-            categoryOrder.forEach(category => {
-                const options = categories[category];
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'category';
-                categoryDiv.setAttribute('data-category', category);
-                
-                const titleDiv = document.createElement('div');
-                titleDiv.className = 'category-title' + (category === 'ブース' ? ' required' : '');
-                titleDiv.textContent = category;
-                
-                const optionsDiv = document.createElement('div');
-                optionsDiv.className = 'options';
-                
-                options.forEach(option => {
-                    if (category === 'バージョン') {
-                        return;
-                    }
+        // バージョンを追加
+        promptText += " --v 6.0";
 
-                    const button = document.createElement('button');
-                    button.className = 'option-btn';
-                    button.textContent = option;
-                    
-                    if (selectedOptions[category] === option) {
-                        button.classList.add('selected');
-                    }
+        document.getElementById("prompt-display").textContent = promptText;
+        validateSelections();
+      }
 
-                    button.onclick = () => {
-                        if (selectedOptions[category] === option) {
-                            if (category === 'ブース') {
-                                return;
-                            }
-                            delete selectedOptions[category];
-                            button.classList.remove('selected');
-                        } else {
-                            optionsDiv.querySelectorAll('.option-btn').forEach(btn => {
-                                btn.classList.remove('selected');
-                            });
-                            selectedOptions[category] = option;
-                            button.classList.add('selected');
-                        }
-                        updatePrompt();
-                    };
-                    optionsDiv.appendChild(button);
+      function createCategories() {
+        const container = document.getElementById("categories");
+
+        categoryOrder.forEach((category) => {
+          const options = categories[category];
+          const categoryDiv = document.createElement("div");
+          categoryDiv.className = "category";
+          categoryDiv.setAttribute("data-category", category);
+
+          const titleDiv = document.createElement("div");
+          titleDiv.className =
+            "category-title" + (category === "ブース" ? " required" : "");
+          titleDiv.textContent = category;
+
+          const optionsDiv = document.createElement("div");
+          optionsDiv.className = "options";
+
+          options.forEach((option) => {
+            if (category === "バージョン") {
+              return;
+            }
+
+            const button = document.createElement("button");
+            button.className = "option-btn";
+            button.textContent = option;
+
+            if (selectedOptions[category] === option) {
+              button.classList.add("selected");
+            }
+
+            button.onclick = () => {
+              if (selectedOptions[category] === option) {
+                if (category === "ブース") {
+                  return;
+                }
+                delete selectedOptions[category];
+                button.classList.remove("selected");
+              } else {
+                optionsDiv.querySelectorAll(".option-btn").forEach((btn) => {
+                  btn.classList.remove("selected");
                 });
-                
-                categoryDiv.appendChild(titleDiv);
-                categoryDiv.appendChild(optionsDiv);
-                container.appendChild(categoryDiv);
-            });
+                selectedOptions[category] = option;
+                button.classList.add("selected");
+              }
+              updatePrompt();
+            };
+            optionsDiv.appendChild(button);
+          });
+
+          categoryDiv.appendChild(titleDiv);
+          categoryDiv.appendChild(optionsDiv);
+          container.appendChild(categoryDiv);
+        });
+      }
+
+      document.getElementById("copy-btn").onclick = () => {
+        if (!validateSelections()) {
+          alert("ブースを選択してください");
+          return;
         }
+        const promptText =
+          document.getElementById("prompt-display").textContent;
+        navigator.clipboard
+          .writeText(promptText)
+          .then(() => alert("プロンプトをクリップボードにコピーしました！"));
+      };
 
-        document.getElementById('copy-btn').onclick = () => {
-            if (!validateSelections()) {
-                alert('ブースを選択してください');
-                return;
-            }
-            const promptText = document.getElementById('prompt-display').textContent;
-            navigator.clipboard.writeText(promptText)
-                .then(() => alert('プロンプトをクリップボードにコピーしました！'));
-        };
-
-        createCategories();
-        updatePrompt();
+      createCategories();
+      updatePrompt();
     </script>
-</body>
+  </body>
 </html>
