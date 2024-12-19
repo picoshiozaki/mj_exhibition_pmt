@@ -137,6 +137,7 @@
 
     <script>
       const categoryOrder = [
+        "カメラアングル",
         "特性",
         "ブース",
         "形状",
@@ -155,6 +156,21 @@
       ];
 
       const categories = {
+        カメラアングル: [
+          "Eye-Level Shot",
+          "Full Shot",
+          "Low Angle Shot",
+          // "High angle Shot",
+          "Wide front Shot from entrance",
+          "Corner Perspective Shot",
+          "Walkthrough Perspective",
+          "Isometric Shot",
+          "Dramatic wide shot",
+          "Bird's-Eye Shot (Overhead Shot)",
+          // "Dynamic diagonal Shot",
+          // "3/4 Shot from right",
+          // "3/4 Shot from left",
+        ],
         特性: {
           スケール: [
             "huge",
@@ -292,7 +308,7 @@
 
                   const newTotal =
                     Object.values(selectedTraits).filter(Boolean).length;
-                  selectedCountSpan.textContent = `(${newTotal}/3選択中)`;
+                    selectedCountSpan.textContent = `${newTotal}/3選択中`;
 
                   updatePrompt();
                 };
@@ -385,77 +401,82 @@
       }
 
       function updatePrompt() {
-        const selections = [];
-        let hasIncludeTargets = false;
-        const specialOptions = {
-          exclude: null,
-          ratio: null,
-        };
+    const selections = [];
+    let cameraAngleSelection = null;
+    let hasIncludeTargets = false;
+    const specialOptions = {
+        exclude: null,
+        ratio: null,
+    };
 
-        const selectedTraitsList =
-          Object.values(selectedTraits).filter(Boolean);
-        if (selectedTraitsList.length > 0) {
-          selections.push(selectedTraitsList.join(" "));
-        }
+    // カメラアングルを最優先でプロンプトの先頭に配置
+    const cameraAngle = selectedOptions["カメラアングル"];
+    if (cameraAngle) {
+        cameraAngleSelection = cameraAngle;
+    }
 
-        categoryOrder.forEach((category) => {
-          if (category === "バージョン" || category === "特性") return;
+    const selectedTraitsList = Object.values(selectedTraits).filter(Boolean);
+    if (selectedTraitsList.length > 0) {
+        selections.push(selectedTraitsList.join(" "));
+    }
 
-          const selectedOption = selectedOptions[category];
-          if (!selectedOption) return;
+    categoryOrder.forEach((category) => {
+        if (category === "バージョン" || category === "特性" || category === "カメラアングル") return;
 
-          if (category === "除外") {
+        const selectedOption = selectedOptions[category];
+        if (!selectedOption) return;
+
+        if (category === "除外") {
             specialOptions.exclude = selectedOption;
             return;
-          }
-          if (category === "比率") {
+        }
+        if (category === "比率") {
             specialOptions.ratio = selectedOption;
             return;
-          }
+        }
 
-          if (category === "展示関係") {
-            // 展示関係の場合は配列をループ
+        if (category === "展示関係") {
             selectedOption.forEach((option) => {
-              if (!hasIncludeTargets) {
-                hasIncludeTargets = true;
-                selections.push("includes " + option);
-              } else {
-                selections.push(option);
-              }
+                if (!hasIncludeTargets) {
+                    hasIncludeTargets = true;
+                    selections.push("includes " + option);
+                } else {
+                    selections.push(option);
+                }
             });
-          } else if (category === "サイズ" || selections.length === 0) {
+        } else if (category === "サイズ" || selections.length === 0) {
             selections.push(selectedOption);
-          } else if (
-            ["一番目立つアイテム", "ミーティング"].includes(category)
-          ) {
+        } else if (["一番目立つアイテム", "ミーティング"].includes(category)) {
             if (!hasIncludeTargets) {
-              hasIncludeTargets = true;
-              selections.push("includes " + selectedOption);
+                hasIncludeTargets = true;
+                selections.push("includes " + selectedOption);
             } else {
-              selections.push(selectedOption);
+                selections.push(selectedOption);
             }
-          } else if (category === "背景") {
+        } else if (category === "背景") {
             selections.push("Background: " + selectedOption);
-          } else {
+        } else {
             selections.push(selectedOption);
-          }
-        });
-
-        let promptText = selections.join(", ");
-
-        if (specialOptions.exclude) {
-          promptText += (promptText ? " " : "") + specialOptions.exclude;
         }
+    });
 
-        if (specialOptions.ratio) {
-          promptText += (promptText ? " " : "") + specialOptions.ratio;
-        }
+    let promptText = cameraAngleSelection
+        ? cameraAngleSelection + ", " + selections.join(", ")
+        : selections.join(", ");
 
-        promptText += " --v 6.0";
+    if (specialOptions.exclude) {
+        promptText += (promptText ? " " : "") + specialOptions.exclude;
+    }
 
-        document.getElementById("prompt-display").textContent = promptText;
-        validateSelections();
-      }
+    if (specialOptions.ratio) {
+        promptText += (promptText ? " " : "") + specialOptions.ratio;
+    }
+
+    promptText += " --v 6.0";
+
+    document.getElementById("prompt-display").textContent = promptText;
+    validateSelections();
+}
 
       function shouldShowIncludes() {
         return (
