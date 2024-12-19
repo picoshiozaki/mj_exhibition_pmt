@@ -105,7 +105,7 @@
       .category[data-category="ブース"] {
         background: #ebf8ff;
       }
-      .category[data-category="一番目につアイテム"],
+      .category[data-category="一番目立つアイテム"],
       .category[data-category="展示関係"],
       .category[data-category="ミーティング"] {
         background: #f0fff4;
@@ -126,7 +126,7 @@
         "形状",
         "サイズ",
         "高さ", // 追加
-        "一番目につアイテム",
+        "一番目立つアイテム",
         "展示関係",
         "ミーティング",
         "デザイン設定",
@@ -149,7 +149,7 @@
           "located in a island position(4 sides open)",
         ],
         サイズ: ["12x6 metres", "12x12 metres", "6x6 metres", "6x3 metres"],
-        一番目につアイテム: [
+        一番目立つアイテム: [
           "an eye-catching demonstration stage with large display",
           "a symbolical high sign tower with logo",
           "a reception counter",
@@ -245,7 +245,7 @@
           if (category === "サイズ" || selections.length === 0) {
             selections.push(selectedOption);
           } else if (
-            ["一番目につアイテム", "展示関係", "ミーティング"].includes(
+            ["一番目立つアイテム", "展示関係", "ミーティング"].includes(
               category
             )
           ) {
