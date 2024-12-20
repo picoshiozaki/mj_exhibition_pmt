@@ -405,97 +405,152 @@
       }
 
       function updatePrompt() {
-        const selections = [];
-        let cameraAngleSelection = null;
-        let hasIncludeTargets = false;
-        const specialOptions = {
-          exclude: null,
-          ratio: null,
-        };
+  const selections = [];
+  let cameraAngleSelection = null;
+  const specialOptions = {
+    exclude: null,
+    ratio: null,
+  };
 
-        // カメラアングルを最優先でプロンプトの先頭に配置
-        const cameraAngle = selectedOptions["カメラアングル"];
-        if (cameraAngle) {
-          cameraAngleSelection = cameraAngle;
+  // Camera angle is prioritized at the start of the prompt
+  const cameraAngle = selectedOptions["カメラアングル"];
+  if (cameraAngle) {
+    cameraAngleSelection = cameraAngle;
+  }
+
+  // Handle traits (特性)
+  // 特性を適切な順序で並べ替え
+  const traitCategories = {
+    スケール: selectedTraits.スケール, // 大きさ
+    空間: selectedTraits.空間,     // 特質
+    建築: selectedTraits.建築      // 評価
+  };
+  
+  const selectedTraitsList = Object.values(traitCategories).filter(Boolean);
+  const traitsDescription = selectedTraitsList.length > 0 ? selectedTraitsList.join(" ") : "";
+  
+
+  // Process each category in order
+  categoryOrder.forEach((category) => {
+    if (category === "バージョン" || category === "特性" || category === "カメラアングル") return;
+
+    const selectedOption = selectedOptions[category];
+    if (!selectedOption) return;
+
+    if (category === "除外") {
+      specialOptions.exclude = selectedOption;
+      return;
+    }
+    if (category === "比率") {
+      specialOptions.ratio = selectedOption;
+      return;
+    }
+
+    // Special handling for each category
+    switch (category) {
+      case "ブース":
+        // 特性（形容詞）がある場合は、それを booth の前に配置
+        if (traitsDescription) {
+          selections.push(`${traitsDescription} ${selectedOption}`);
+        } else {
+          selections.push(`${selectedOption}`);
         }
+        break;
 
-        const selectedTraitsList =
-          Object.values(selectedTraits).filter(Boolean);
-        if (selectedTraitsList.length > 0) {
-          selections.push(selectedTraitsList.join(" "));
+      case "展示関係":
+        if (selectedOption.length > 0) {
+          selections.push(`with ${selectedOption.join(", ")}`);
         }
+        break;
 
-        categoryOrder.forEach((category) => {
-          if (
-            category === "バージョン" ||
-            category === "特性" ||
-            category === "カメラアングル"
-          )
-            return;
+      case "一番目立つアイテム":
+        selections.push(`featuring ${selectedOption}`);
+        break;
 
-          const selectedOption = selectedOptions[category];
-          if (!selectedOption) return;
+      case "形状":
+        selections.push(selectedOption);
+        break;
 
-          if (category === "除外") {
-            specialOptions.exclude = selectedOption;
-            return;
-          }
-          if (category === "比率") {
-            specialOptions.ratio = selectedOption;
-            return;
-          }
+      case "サイズ":
+        selections.push(`measuring ${selectedOption}`);
+        break;
 
-          if (category === "展示関係") {
-            if (selectedOption.length > 0) {
-              selections.push(
-                "includes exhibition items: " + selectedOption.join(", ")
-              );
-            }
-          } else if (category === "サイズ" || selections.length === 0) {
-            selections.push(selectedOption);
-          } else if (
-            ["一番目立つアイテム", "ミーティング"].includes(category)
-          ) {
-            if (!hasIncludeTargets) {
-              hasIncludeTargets = true;
-              selections.push("includes " + selectedOption);
-            } else {
-              selections.push(selectedOption);
-            }
-          } else if (category === "背景") {
-            selections.push("Background: " + selectedOption);
-          } else if (category === "デザイン設定") {
-            // 最後の要素からカンマを取り除き、ピリオドを追加
-            let lastIndex = selections.length - 1;
-            if (lastIndex >= 0 && selections[lastIndex].endsWith(", ")) {
-              selections[lastIndex] = selections[lastIndex].slice(0, -2); // カンマとスペースを削除
-            } else if (lastIndex >= 0 && selections[lastIndex].endsWith(",")) {
-              selections[lastIndex] = selections[lastIndex].slice(0, -1); // カンマのみ削除
-            }
-            selections.push(" . " + selectedOption);
-          } else {
-            selections.push(selectedOption);
-          }
-        });
+      case "高さ":
+        selections.push(`with a height of ${selectedOption}`);
+        break;
 
-        let promptText = cameraAngleSelection
-          ? cameraAngleSelection + ", " + selections.join(", ")
-          : selections.join(", ");
-
-        if (specialOptions.exclude) {
-          promptText += (promptText ? " " : "") + specialOptions.exclude;
+      case "ミーティング":
+        if (selectedOption) {
+          selections.push(`incorporating ${selectedOption}`);
         }
+        break;
 
-        if (specialOptions.ratio) {
-          promptText += (promptText ? " " : "") + specialOptions.ratio;
-        }
+      case "デザイン設定":
+        selections.push(`. ${selectedOption}`);
+        break;
 
-        promptText += " --v 6.0";
+      case "背景":
+        selections.push(`. Background: ${selectedOption}`);
+        break;
 
-        document.getElementById("prompt-display").textContent = promptText;
-        validateSelections();
+      case "レンダリング":
+        selections.push(`. ${selectedOption}`);
+        break;
+
+      case "照明":
+        selections.push(`illuminated by ${selectedOption}`);
+        break;
+
+      default:
+        selections.push(selectedOption);
+    }
+  });
+
+  // Construct the final prompt
+  let promptText = "";
+  
+  // Add camera angle if selected
+  if (cameraAngleSelection) {
+    promptText = `${cameraAngleSelection} of`;
+  }
+
+  // Combine all selections with appropriate punctuation
+  selections.forEach((selection, index) => {
+    if (!selection) return;
+
+    // Add appropriate separator
+    if (promptText) {
+      if (selection.startsWith(".")) {
+        promptText += selection;
+      } else if (selection.includes("exhibition booth") || selection.includes("exhibition stand") || selection.includes("tradeshow booth")) {
+        // ブースの記述の場合は前のテキストとカンマで区切らない
+        promptText += " " + selection;
+      } else if (selection.startsWith("with") || selection.startsWith("featuring") || 
+                 selection.startsWith("measuring") || selection.startsWith("incorporating") ||
+                 selection.startsWith("illuminated")) {
+        promptText += ", " + selection;
+      } else {
+        promptText += ", " + selection;
       }
+    } else {
+      promptText = selection;
+    }
+  });
 
+  // Add special options
+  if (specialOptions.exclude) {
+    promptText += " " + specialOptions.exclude;
+  }
+  if (specialOptions.ratio) {
+    promptText += " " + specialOptions.ratio;
+  }
+
+  // Add version
+  promptText += " --v 6.0";
+
+  document.getElementById("prompt-display").textContent = promptText;
+  validateSelections();
+}
       function shouldShowIncludes() {
         return (
           selectedOptions["一番目立つアイテム"] ||
