@@ -200,6 +200,10 @@
         展示関係: [
           "products exhibit space with counters, displays and technical content panels",
           "freestanding and regularly arranged walls with mounted posters and displays",
+          "a reception counter",
+          "wall-mounted exhibition posters",
+          "sophisticated large-format environmental graphics",
+          "interactive tablet kiosk stand (hands-on interactive display)",
         ],
         ミーティング: [
           "compact meeting space with sets of chairs and table",
@@ -308,7 +312,7 @@
 
                   const newTotal =
                     Object.values(selectedTraits).filter(Boolean).length;
-                    selectedCountSpan.textContent = `${newTotal}/3選択中`;
+                  selectedCountSpan.textContent = `${newTotal}/3選択中`;
 
                   updatePrompt();
                 };
@@ -401,82 +405,96 @@
       }
 
       function updatePrompt() {
-    const selections = [];
-    let cameraAngleSelection = null;
-    let hasIncludeTargets = false;
-    const specialOptions = {
-        exclude: null,
-        ratio: null,
-    };
+        const selections = [];
+        let cameraAngleSelection = null;
+        let hasIncludeTargets = false;
+        const specialOptions = {
+          exclude: null,
+          ratio: null,
+        };
 
-    // カメラアングルを最優先でプロンプトの先頭に配置
-    const cameraAngle = selectedOptions["カメラアングル"];
-    if (cameraAngle) {
-        cameraAngleSelection = cameraAngle;
-    }
+        // カメラアングルを最優先でプロンプトの先頭に配置
+        const cameraAngle = selectedOptions["カメラアングル"];
+        if (cameraAngle) {
+          cameraAngleSelection = cameraAngle;
+        }
 
-    const selectedTraitsList = Object.values(selectedTraits).filter(Boolean);
-    if (selectedTraitsList.length > 0) {
-        selections.push(selectedTraitsList.join(" "));
-    }
+        const selectedTraitsList =
+          Object.values(selectedTraits).filter(Boolean);
+        if (selectedTraitsList.length > 0) {
+          selections.push(selectedTraitsList.join(" "));
+        }
 
-    categoryOrder.forEach((category) => {
-        if (category === "バージョン" || category === "特性" || category === "カメラアングル") return;
+        categoryOrder.forEach((category) => {
+          if (
+            category === "バージョン" ||
+            category === "特性" ||
+            category === "カメラアングル"
+          )
+            return;
 
-        const selectedOption = selectedOptions[category];
-        if (!selectedOption) return;
+          const selectedOption = selectedOptions[category];
+          if (!selectedOption) return;
 
-        if (category === "除外") {
+          if (category === "除外") {
             specialOptions.exclude = selectedOption;
             return;
-        }
-        if (category === "比率") {
+          }
+          if (category === "比率") {
             specialOptions.ratio = selectedOption;
             return;
-        }
+          }
 
-        if (category === "展示関係") {
-            selectedOption.forEach((option) => {
-                if (!hasIncludeTargets) {
-                    hasIncludeTargets = true;
-                    selections.push("includes " + option);
-                } else {
-                    selections.push(option);
-                }
-            });
-        } else if (category === "サイズ" || selections.length === 0) {
-            selections.push(selectedOption);
-        } else if (["一番目立つアイテム", "ミーティング"].includes(category)) {
-            if (!hasIncludeTargets) {
-                hasIncludeTargets = true;
-                selections.push("includes " + selectedOption);
-            } else {
-                selections.push(selectedOption);
+          if (category === "展示関係") {
+            if (selectedOption.length > 0) {
+              selections.push(
+                "includes exhibition items: " + selectedOption.join(", ")
+              );
             }
-        } else if (category === "背景") {
-            selections.push("Background: " + selectedOption);
-        } else {
+          } else if (category === "サイズ" || selections.length === 0) {
             selections.push(selectedOption);
+          } else if (
+            ["一番目立つアイテム", "ミーティング"].includes(category)
+          ) {
+            if (!hasIncludeTargets) {
+              hasIncludeTargets = true;
+              selections.push("includes " + selectedOption);
+            } else {
+              selections.push(selectedOption);
+            }
+          } else if (category === "背景") {
+            selections.push("Background: " + selectedOption);
+          } else if (category === "デザイン設定") {
+            // 最後の要素からカンマを取り除き、ピリオドを追加
+            let lastIndex = selections.length - 1;
+            if (lastIndex >= 0 && selections[lastIndex].endsWith(", ")) {
+              selections[lastIndex] = selections[lastIndex].slice(0, -2); // カンマとスペースを削除
+            } else if (lastIndex >= 0 && selections[lastIndex].endsWith(",")) {
+              selections[lastIndex] = selections[lastIndex].slice(0, -1); // カンマのみ削除
+            }
+            selections.push(" . " + selectedOption);
+          } else {
+            selections.push(selectedOption);
+          }
+        });
+
+        let promptText = cameraAngleSelection
+          ? cameraAngleSelection + ", " + selections.join(", ")
+          : selections.join(", ");
+
+        if (specialOptions.exclude) {
+          promptText += (promptText ? " " : "") + specialOptions.exclude;
         }
-    });
 
-    let promptText = cameraAngleSelection
-        ? cameraAngleSelection + ", " + selections.join(", ")
-        : selections.join(", ");
+        if (specialOptions.ratio) {
+          promptText += (promptText ? " " : "") + specialOptions.ratio;
+        }
 
-    if (specialOptions.exclude) {
-        promptText += (promptText ? " " : "") + specialOptions.exclude;
-    }
+        promptText += " --v 6.0";
 
-    if (specialOptions.ratio) {
-        promptText += (promptText ? " " : "") + specialOptions.ratio;
-    }
-
-    promptText += " --v 6.0";
-
-    document.getElementById("prompt-display").textContent = promptText;
-    validateSelections();
-}
+        document.getElementById("prompt-display").textContent = promptText;
+        validateSelections();
+      }
 
       function shouldShowIncludes() {
         return (
